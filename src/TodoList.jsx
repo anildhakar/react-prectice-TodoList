@@ -6,10 +6,16 @@ const TodoList = () => {
   const [category, setCategory] = useState("Category");
   const [priority, setPriority] = useState("");
   const [date, setDate] = useState("");
+  
   const [showAddInput, setShowAddInput] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCatInput, setNewCatInput] = useState("");
 
-  const categoryList = ["Category", "Work", "Study"];
+  const [filterCategory, setFilterCategory] = useState("All Category");
+  const [filterPriority, setFilterPriority] = useState("All Priority");
+
+  const [customCategories, setCustomCategories] = useState(() => 
+    JSON.parse(localStorage.getItem("customCats")) || ["Work", "Study", "Personal"]
+  );
 
   const [todos, setTodos] = useState(() => 
     JSON.parse(localStorage.getItem("myTodos")) || []
@@ -17,60 +23,70 @@ const TodoList = () => {
 
   useEffect(() => {
     localStorage.setItem("myTodos", JSON.stringify(todos));
-  }, [todos]);
+    localStorage.setItem("customCats", JSON.stringify(customCategories));
+  }, [todos, customCategories]);
+
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+    if (value === "ADD_NEW") {
+      setShowAddInput(true);
+      setCategory("Category");
+    } else {
+      setShowAddInput(false);
+      setCategory(value);
+    }
+  };
+
+  const handleAddNewCategory = () => {
+    if (newCatInput.trim() !== "") {
+      const formatted = newCatInput.trim();
+      if (!customCategories.includes(formatted)) {
+        setCustomCategories([...customCategories, formatted]);
+      }
+      setCategory(formatted);
+      setShowAddInput(false);
+      setNewCatInput("");
+    }
+  };
 
   const addTask = () => {
     if (!task.trim()) return;
-    setTodos([{
+    const newTodo = {
       id: Date.now(),
       text: task,
-      category,
-      priority: priority || "No Priority",
+      category: category === "Category" ? "General" : category,
+      priority: priority || "Low", // Default priority set ki
       date: date || "No Date"
-    }, ...todos]);
-
-    setTask(""); 
-    setPriority(""); 
-    setDate(""); 
-    setCategory("Category"); 
-  };
-
-  const addNewCategory = () => {
-    if (newCategoryName.trim()) {
-      setCategory(newCategoryName.trim());
-    }
-    setNewCategoryName("");
+    };
+    setTodos([newTodo, ...todos]);
+    setTask(""); setPriority(""); setCategory("Category"); setDate("");
     setShowAddInput(false);
   };
 
+  const filterCategories = ["All Category", ...new Set([...customCategories, ...todos.map(t => t.category)])];
+
+  const filteredTodos = todos.filter(t => {
+    const categoryMatch = filterCategory === "All Category" || t.category === filterCategory;
+    const priorityMatch = filterPriority === "All Priority" || t.priority + " Priority" === filterPriority || t.priority === filterPriority;
+    return categoryMatch && priorityMatch;
+  });
+
   return (
     <div className="todo-container">
+      <h1 className="todo-title">Advanced ToDo</h1>
+      
       <div className="input-section">
-        <input className="main-input" placeholder="Enter ToDo List?" value={task}
+        <input className="main-input" placeholder="Enter Task..." value={task} 
           onChange={(e) => setTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} />
         <button className="add-btn" onClick={addTask}>Add</button>
       </div>
 
       <div className="controls">
-        <select value={category} className="category-sel" onChange={(e) => {
-            const val = e.target.value;
-            if (val === "add-new") {
-              setShowAddInput(true);
-            } else {
-              setCategory(val);
-               setShowAddInput(false); 
-            } }}>
-    
-          {!categoryList.includes(category) && <option value={category}>{category}</option>}
-          
-          {categoryList.map(item => <option key={item} value={item}>{item}</option>)}
-          
-          <option value="add-new" style={{ fontWeight: "bold", color: "#2091F9" }}>
-            + Add New Category
-          </option>
+        <select value={category} onChange={handleCategoryChange} className="category-sel">
+          <option value="Category">Category</option>
+          {customCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          <option value="ADD_NEW" className="add-new-opt">+ Add New Category</option>
         </select>
-
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="date-input" />
 
         <select value={priority} onChange={(e) => setPriority(e.target.value)} className="priority-sel">
           <option value="" disabled>Priority</option>
@@ -78,25 +94,48 @@ const TodoList = () => {
           <option value="Medium">Medium Priority</option>
           <option value="High">High Priority</option>
         </select>
+
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="date-input" />
       </div>
 
       {showAddInput && (
         <div className="add-category-box">
-          <input autoFocus placeholder="Type category..." value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addNewCategory()} />
-          <button onClick={addNewCategory}>OK</button>
+          <input 
+            type="text" 
+            placeholder="Type category..." 
+            value={newCatInput}
+            onChange={(e) => setNewCatInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddNewCategory()}
+            autoFocus
+          />
+          <button onClick={handleAddNewCategory}>Add</button>
         </div>
       )}
 
+      <div className="filter-row">
+        <select className="small-filter" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+          {filterCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+        </select>
+
+        <select className="small-filter" value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
+          <option value="All Priority">All Priority</option>
+          <option value="Low Priority">Low Priority</option>
+          <option value="Medium Priority">Medium Priority</option>
+          <option value="High Priority">High Priority</option>
+        </select>
+      </div>
+
       <div className="list-container">
-        {todos.map(t => (
-          <div key={t.id} className="todo-item-row" style={{background: '#fff'}}>
+        {filteredTodos.map(t => (
+          <div key={t.id} className="todo-item-row">
             <span className="task-text">{t.text}</span>
             <div className="badges">
-              <span className="item-date">{t.date}</span>
-              <span className={`item-priority ${t.priority.toLowerCase().replace(" ", "-")}-priority`}>{t.priority}</span>
-              <span className="item-category">{t.category}</span>
+              <span className="item-date badge-box">{t.date}</span>
+              {/* Class name fixed for priority colors */}
+              <span className={`item-priority badge-box ${t.priority.toLowerCase().split(" ")[0]}`}>
+                {t.priority}
+              </span>
+              <span className="item-category badge-box">{t.category}</span>
               <button className="del-icon" onClick={() => setTodos(todos.filter(todo => todo.id !== t.id))}>🗑️</button>
             </div>
           </div>

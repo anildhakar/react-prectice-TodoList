@@ -1,121 +1,134 @@
 .app-wrapper {
   display: flex;
   justify-content: center;
-  padding: 40px 20px;
+  align-items: flex-start;
+  padding: 20px;
   background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
 .todo-container {
   width: 100%;
-  max-width: 650px;
+  max-width: 600px;
   background: #2a5797;
   border-radius: 20px;
   padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.main-input, .add-btn, .controls select, .controls input {
-  padding: 10px;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  font-size: 15px;
-  background: #fff;
-  outline: none;
-}
+.todo-title { color: white; text-align: center; margin-bottom: 20px; font-family: Arial; }
 
-.input-section, .controls {
+.input-section, .controls, .filter-row {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
 }
 
-.main-input { flex: 1; }
+.main-input, .controls select, .controls input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
 
 .add-btn {
+  padding: 10px 25px;
+  background: #fff;
+  border: none;
+  border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-.add-btn:hover {
-  background: #000;
-  color: #fff;
+.controls .category-sel { 
+  background-color: #e3f2fd; 
+}
+.controls .date-input { 
+  background-color: #f3e5f5; 
+}
+.controls .priority-sel { 
+  background-color: #fff3e0; 
 }
 
-.controls .category-sel { background-color: #e3f2fd; }
-.controls .date-input { background-color: #f3e5f5; }
-.controls .priority-sel { background-color: #fff3e0; }
+.add-category-box {
+  background: #0d2137;
+  padding: 4px;
+  display: flex;
+  gap: 8px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  width: fit-content;
+}
 
+.add-category-box input {
+  height: 20px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+}
+
+.add-category-box button {
+  padding: 0 15px;
+  background: #eee;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.filter-row {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.small-filter {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #e3f2fd;
+  cursor: pointer;
+}
 
 .todo-item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 2px solid hwb(0 98% 1% / 0.911);
+  background: #fff;
   border-radius: 12px;
   padding: 12px 15px;
   margin-top: 10px;
 }
-.todo-item-row:hover {
-  transform: translateY(-2px); 
-}
 
+.task-text { color: #333; font-weight: 500; flex: 1; }
 
-.badges {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.badges { display: flex; align-items: center; gap: 8px; }
 
-.badges span {
-  border: 1.5px solid #000;
+.badge-box {
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: bold;
+  border: 1.5px solid #000;
   text-transform: uppercase;
 }
-.item-category { background-color: #e3f2fd; color: #0d47a1; }
-.item-date { background-color: #f3e5f5; color: #4a148c; }
 
-.item-priority.low-priority {
-   background: #c8e6c9; 
-   color: #1b5e20; }
-.medium-priority { 
-  background: #ffe082; 
-  color: #7f4d00; }
-.high-priority {
-     background: #ffcdd2; 
-     color: #b71c1c; }
-.no-priority {
-   background: #f5f5f5;
-    color: #888; }
+.badges .low { background-color: #c8e6c9; color: #1b5e20; }
+.badges .medium { background-color: #ffe082; color: #7f4d00; }
+.badges .high { background-color: #ffcdd2; color: #b71c1c; }
+.badges .item-category { background-color: #e3f2fd; color: #0d47a1; }
+.badges .item-date { background-color: #f3e5f5; color: #4a148c; }
 
-.del-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: rgb(35, 33, 33);
+.del-icon { background: none; border: none; cursor: pointer; font-size: 18px; }
+
+.add-new-opt { color: #2091F9; font-weight: bold; }
+
+@media (max-width: 600px) {
+  .input-section, .controls, .filter-row { flex-direction: column; }
+  .todo-item-row { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
-.del-icon:hover {
-  transform: scale(1.2); 
-}
-
-.empty-msg {
-  text-align: center;
-  color: #fff;
-  opacity: 0.8;
-  margin-top: 20px;
-}
-
-.add-category-box {
-  background: #0f1e3a;
-  padding: 9px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  margin: 15px 0;
-  max-width: 220px;
-}
-
