@@ -46,8 +46,17 @@
 .controls .category-sel { 
   background-color: #e3f2fd; 
 }
-.controls .date-input { 
-  background-color: #f3e5f5; 
+.controls .date-input {
+  background-color: #f3e5f5;
+  cursor: pointer;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  appearance: none; 
+}
+.date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 2px;
 }
 .controls .priority-sel { 
   background-color: #fff3e0; 
