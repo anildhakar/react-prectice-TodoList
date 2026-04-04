@@ -53,6 +53,28 @@
   background-color: #fff3e0; 
 }
 
+.date-wrapper {
+  position: relative;
+  flex: 1;
+}
+.date-input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #f3e5f5;
+  color: transparent;        /* browser date hide karne ke liye */
+}
+.date-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+  font-size: 14px;
+}
+
 .add-category-box {
   background: #0d2137;
   padding: 4px;
