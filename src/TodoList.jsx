@@ -66,7 +66,7 @@ const TodoList = () => {
     setShowAddInput(false);
   };
 
-  // --- 5. FILTERING LOGIC ---
+  // FILTERING LOGIC
   const filterCategoriesList = ["All Category", ...new Set([...customCategories, ...todos.map(t => t.category)])];
 
   const filteredTodos = todos.filter(t => {
@@ -123,7 +123,6 @@ const TodoList = () => {
         </div>
       )}
 
-      {/* Filter Row */}
       <div className="filter-row">
         <select className="small-filter" value={filters.category} 
           onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}>
