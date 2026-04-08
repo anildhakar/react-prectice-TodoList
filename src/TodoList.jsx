@@ -2,16 +2,21 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 
 const TodoList = () => {
-  const [task, setTask] = useState("");
-  const [category, setCategory] = useState("Category");
-  const [priority, setPriority] = useState("");
-  const [date, setDate] = useState("");
   
+  const [todoInput, setTodoInput] = useState({
+    task: "",
+    category: "Category",
+    priority: "",
+    date: ""
+  });
+
+  const [filters, setFilters] = useState({
+    category: "All Category",
+    priority: "All Priority"
+  });
+
   const [showAddInput, setShowAddInput] = useState(false);
   const [newCatInput, setNewCatInput] = useState("");
-
-  const [filterCategory, setFilterCategory] = useState("All Category");
-  const [filterPriority, setFilterPriority] = useState("All Priority");
 
   const [customCategories, setCustomCategories] = useState(() => 
     JSON.parse(localStorage.getItem("customCats")) || ["Work", "Study", "Personal"]
@@ -26,14 +31,19 @@ const TodoList = () => {
     localStorage.setItem("customCats", JSON.stringify(customCategories));
   }, [todos, customCategories]);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setTodoInput(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleCategoryChange = (e) => {
     const value = e.target.value;
     if (value === "ADD_NEW") {
       setShowAddInput(true);
-      setCategory("Category");
+      setTodoInput(prev => ({ ...prev, category: "Category" }));
     } else {
       setShowAddInput(false);
-      setCategory(value);
+      setTodoInput(prev => ({ ...prev, category: value }));
     }
   };
 
@@ -43,31 +53,36 @@ const TodoList = () => {
       if (!customCategories.includes(formatted)) {
         setCustomCategories([...customCategories, formatted]);
       }
-      setCategory(formatted);
+      setTodoInput(prev => ({ ...prev, category: formatted }));
       setShowAddInput(false);
       setNewCatInput("");
     }
   };
 
   const addTask = () => {
-    if (!task.trim()) return;
+    if (!todoInput.task.trim()) return;
+    
     const newTodo = {
       id: Date.now(),
-      text: task,
-      category: category === "Category" ? "General" : category,
-      priority: priority || "Low",
-      date: date || "No Date"
+      text: todoInput.task,
+      category: todoInput.category === "Category" ? "General" : todoInput.category,
+      priority: todoInput.priority || "Low",
+      date: todoInput.date || "No Date"
     };
+
     setTodos([newTodo, ...todos]);
-    setTask(""); setPriority(""); setCategory("Category"); setDate("");
+    
+    setTodoInput({ task: "", category: "Category", priority: "", date: "" });
     setShowAddInput(false);
   };
 
-  const filterCategories = ["All Category", ...new Set([...customCategories, ...todos.map(t => t.category)])];
+  const filterCategoriesList = ["All Category", ...new Set([...customCategories, ...todos.map(t => t.category)])];
 
   const filteredTodos = todos.filter(t => {
-    const categoryMatch = filterCategory === "All Category" || t.category === filterCategory;
-    const priorityMatch = filterPriority === "All Priority" || t.priority + " Priority" === filterPriority || t.priority === filterPriority;
+    const categoryMatch = filters.category === "All Category" || t.category === filters.category;
+    const priorityMatch = filters.priority === "All Priority" || 
+                         t.priority + " Priority" === filters.priority || 
+                         t.priority === filters.priority;
     return categoryMatch && priorityMatch;
   });
 
@@ -76,26 +91,43 @@ const TodoList = () => {
       <h1 className="todo-title">Advanced ToDo</h1>
       
       <div className="input-section">
-        <input className="main-input" placeholder="Enter Task..." value={task} 
-          onChange={(e) => setTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} />
+        <input 
+          className="main-input" 
+          name="task"
+          placeholder="Enter Task..." 
+          value={todoInput.task} 
+          onChange={handleInputChange} 
+          onKeyDown={(e) => e.key === "Enter" && addTask()} 
+        />
         <button className="add-btn" onClick={addTask}>Add</button>
       </div>
 
       <div className="controls">
-        <select value={category} onChange={handleCategoryChange} className="category-sel">
+        <select value={todoInput.category} onChange={handleCategoryChange} className="category-sel">
           <option value="Category">Category</option>
           {customCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           <option value="ADD_NEW" className="add-new-opt">+ Add New Category</option>
         </select>
 
-        <select value={priority} onChange={(e) => setPriority(e.target.value)} className="priority-sel">
+        <select 
+          name="priority" 
+          value={todoInput.priority} 
+          onChange={handleInputChange} 
+          className="priority-sel"
+        >
           <option value="" disabled>Priority</option>
           <option value="Low">Low Priority</option>
           <option value="Medium">Medium Priority</option>
           <option value="High">High Priority</option>
         </select>
 
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="date-input" />
+        <input 
+          type="date" 
+          name="date" 
+          value={todoInput.date} 
+          onChange={handleInputChange} 
+          className="date-input" 
+        />
       </div>
 
       {showAddInput && (
@@ -113,11 +145,19 @@ const TodoList = () => {
       )}
 
       <div className="filter-row">
-        <select className="small-filter" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-          {filterCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+        <select 
+          className="small-filter" 
+          value={filters.category} 
+          onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+        >
+          {filterCategoriesList.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
 
-        <select className="small-filter" value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
+        <select 
+          className="small-filter" 
+          value={filters.priority} 
+          onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
+        >
           <option value="All Priority">All Priority</option>
           <option value="Low Priority">Low Priority</option>
           <option value="Medium Priority">Medium Priority</option>
@@ -125,13 +165,13 @@ const TodoList = () => {
         </select>
       </div>
 
+      {/* List Display */}
       <div className="list-container">
         {filteredTodos.map(t => (
           <div key={t.id} className="todo-item-row">
             <span className="task-text">{t.text}</span>
             <div className="badges">
               <span className="item-date badge-box">{t.date}</span>
-              {/* Class name fixed for priority colors */}
               <span className={`item-priority badge-box ${t.priority.toLowerCase().split(" ")[0]}`}>
                 {t.priority}
               </span>
